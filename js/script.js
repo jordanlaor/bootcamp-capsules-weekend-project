@@ -67,6 +67,7 @@ class Person {
   }
 
   setCapsule(capsule) {
+    capsule = parseInt(capsule);
     if (Number.isInteger(capsule)) {
       this.capsule = capsule;
     } else {
@@ -75,7 +76,8 @@ class Person {
   }
 
   setAge(age) {
-    if (Number.isNumber(age) && age > 0 && age <= 120) {
+    age = parseInt(age);
+    if (typeof age === 'number' && age > 0 && age <= 120) {
       this.age = age;
     } else {
       handleError('This is not a valid age');
@@ -83,7 +85,7 @@ class Person {
   }
 
   setCity(city) {
-    if (city instanceof String) {
+    if (typeof city === 'string') {
       this.city = city;
     } else {
       handleError('This is not a valid city');
@@ -99,7 +101,7 @@ class Person {
   }
 
   setHobby(hobby) {
-    if (hobby instanceof String) {
+    if (typeof hobby === 'string') {
       this.hobby = hobby;
     } else {
       handleError('This is not a valid hobby');
@@ -126,22 +128,23 @@ class People {
     this.peopleList = [];
   }
 
-  fillPeopleList() {
+  async fillPeopleList() {
     try {
-      const data = fetchDataAPI(Person.url);
-      data.forEach((item) => {
+      const data = await fetchDataAPI(People.url);
+      for (const item of data) {
         this.peopleList.push(new Person(item.id, item.firstName, item.lastName, item.capsule));
-      });
-      this.peopleList.forEach((person) => {
-        const personData = fetchDataAPI(`${Person.url}${person.id}`);
-        person.setAdditionalInfoAPI(personData.age, personData.city, personData.gender, personData.hobby);
-      });
+      }
+      await Promise.allSettled(
+        this.peopleList.map(async (person) => {
+          const personData = await fetchDataAPI(`${People.url}${person.id}`);
+          person.setAdditionalInfoAPI(personData.age, personData.city, personData.gender, personData.hobby);
+        })
+      );
+      updateLocalStorage('original', this.peopleList);
+      updateLocalStorage('modified', this.peopleList);
     } catch (error) {
       handleError(error);
     }
-
-    updateLocalStorage('original', this);
-    updateLocalStorage('modified', this);
   }
 
   addPeopleListToDOM() {}
@@ -169,5 +172,10 @@ function updateLocalStorage(key, object) {
 }
 
 function getLocalStorageItem(key) {
-  return JSON.parse(localStorage.getItem(key));
+  const peopleList = JSON.parse(localStorage.getItem(key));
+  for (const person of peopleList) {
+    Object.setPrototypeOf(person, Person.prototype);
+    person.__proto__ = Person.prototype;
+  }
+  return peopleList;
 }
