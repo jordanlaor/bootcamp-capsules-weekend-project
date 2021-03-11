@@ -124,12 +124,27 @@ class People {
 
   constructor() {
     this.peopleList = [];
-    this.htmlElement = '';
   }
 
   fillPeopleList() {
-    if(getLocalStorageItem( ))
+    try {
+      const data = fetchDataAPI(Person.url);
+      data.forEach((item) => {
+        this.peopleList.push(new Person(item.id, item.firstName, item.lastName, item.capsule));
+      });
+      this.peopleList.forEach((person) => {
+        const personData = fetchDataAPI(`${Person.url}${person.id}`);
+        person.setAdditionalInfoAPI(personData.age, personData.city, personData.gender, personData.hobby);
+      });
+    } catch (error) {
+      handleError(error);
+    }
+
+    updateLocalStorage('original', this);
+    updateLocalStorage('modified', this);
   }
+
+  addPeopleListToDOM() {}
 
   sortPeopleList() {}
 }
