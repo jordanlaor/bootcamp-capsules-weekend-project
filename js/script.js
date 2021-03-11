@@ -108,9 +108,9 @@ class Person {
     }
   }
 
-  setHtmlElement(htmlElement) {
+  setHtmlElement(htmlElements) {
     // TODO add data validation
-    this.htmlElement = htmlElement;
+    this.htmlElements = htmlElements;
   }
 
   setAdditionalInfoAPI(age, city, gender, hobby) {
@@ -118,6 +118,26 @@ class Person {
     this.setCity(city);
     this.setGender(gender);
     this.setHobby(hobby);
+  }
+
+  addToDOM(row) {
+    const table = document.querySelector('.table');
+    const id = this.getId();
+    const rowHTML = `
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="id">${id}</div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="firstName">${this.getFirstName()}</div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="lastName">${this.getLastName()}</div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="capsule">${this.getCapsule()}</div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="age">${this.getAge()}</div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="city">${this.getCity()}</div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="gender">${this.getGender()}</div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="hobby">${this.getHobby()}</div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="btns">
+            <div class="btn btn__edit">Edit</div>
+            <div class="btn btn__delete">Delete</div>
+          </div>`;
+    table.insertAdjacentHTML('beforeend', rowHTML);
+    this.setHtmlElement([...document.querySelectorAll(`[data-id="${id}"]`)]);
   }
 }
 
@@ -147,7 +167,9 @@ class People {
     }
   }
 
-  addPeopleListToDOM() {}
+  addPeopleListToDOM() {
+    this.peopleList.forEach((person, index) => person.addToDOM(index + 2));
+  }
 
   sortPeopleList() {}
 }
