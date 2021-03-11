@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 class Person {
   constructor(id, firstName, lastName, capsule) {
     this.id = id;
@@ -118,6 +119,21 @@ class Person {
   }
 }
 
+class People {
+  static url = 'https://apple-seeds.herokuapp.com/api/users/';
+
+  constructor() {
+    this.peopleList = [];
+    this.htmlElement = '';
+  }
+
+  fillPeopleList() {
+    if(getLocalStorageItem( ))
+  }
+
+  sortPeopleList() {}
+}
+
 function handleError(error) {
   // TODO have a better error handling
   console.log(error);
@@ -133,8 +149,10 @@ async function fetchDataAPI(url) {
   }
 }
 
-function updateLocalStorage(key) {
-  if (key === 'original') {
-    localStorage.setItem('tasksObject', JSON.stringify(tasksObject));
-  }
+function updateLocalStorage(key, object) {
+  localStorage.setItem(key, JSON.stringify(object));
+}
+
+function getLocalStorageItem(key) {
+  return JSON.parse(localStorage.getItem(key));
 }
