@@ -53,6 +53,36 @@ html {
   align-self: stretch;
 }
 
+input:disabled,
+select:disabled {
+  width: max-content;
+  appearance: inherit;
+  border: none;
+  background: transparent;
+  color: #2d2a2e;
+  opacity: 1;
+}
+
+select {
+  appearance: none;
+}
+
+select,
+input {
+  line-height: 1.15;
+  color: -internal-light-dark(black, white);
+  display: inline-block;
+  text-align: start;
+  background-color: #ffffff54;
+  border-width: 1px;
+  border-style: inset;
+  border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+  padding: 3px 4px;
+  margin-left: -4px;
+  height: fit-content;
+  border-radius: 5px;
+}
+
 .table__header {
   /* TODO add direction arrow (sorting) */
   position: sticky;
@@ -82,12 +112,23 @@ html {
   padding: 3px 6px;
   border: 1px solid #2d2a2e;
   border-radius: 10px;
-  cursor: url(../images/pencil.cur), pointer;
+  cursor: url("../images/pencil.cur"), pointer;
   font-size: 0.9em;
+  transition: 0.2s;
 }
 
 .btn:hover {
   font-weight: 440;
+  background: #82e7eb60;
+}
+
+.btn__delete:hover,
+.btn__cancel:hover {
+  background: #eb6b9160;
+}
+.btn__edit:hover,
+.btn__save:hover {
+  background: #75e7c560;
 }
 
 ::-webkit-scrollbar {

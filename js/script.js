@@ -51,61 +51,68 @@ class Person {
 
   // setters
   setFirstName(firstName) {
-    if (firstName instanceof String) {
+    if (typeof firstName === 'string') {
       this.firstName = firstName;
-    } else {
-      handleError('This is not a valid first name');
+      return true;
     }
+    handleError('This is not a valid first name');
+    return false;
   }
 
   setLastName(lastName) {
-    if (lastName instanceof String) {
+    if (typeof lastName === 'string') {
       this.lastName = lastName;
-    } else {
-      handleError('This is not a valid last name');
+      return true;
     }
+    handleError('This is not a valid last name');
+    return false;
   }
 
   setCapsule(capsule) {
     capsule = parseInt(capsule);
     if (Number.isInteger(capsule)) {
       this.capsule = capsule;
-    } else {
-      handleError('This is not a valid capsule number');
+      return true;
     }
+    handleError('This is not a valid capsule number');
+    return false;
   }
 
   setAge(age) {
     age = parseInt(age);
     if (typeof age === 'number' && age > 0 && age <= 120) {
       this.age = age;
-    } else {
-      handleError('This is not a valid age');
+      return true;
     }
+    handleError('This is not a valid age');
+    return false;
   }
 
   setCity(city) {
     if (typeof city === 'string') {
       this.city = city;
-    } else {
-      handleError('This is not a valid city');
+      return true;
     }
+    handleError('This is not a valid city');
+    return false;
   }
 
   setGender(gender) {
-    if (/(female)|(male)|(other)/i.test(gender)) {
+    if (/(female)|(male)/i.test(gender)) {
       this.gender = gender;
-    } else {
-      handleError('This is not a valid gender');
+      return true;
     }
+    handleError('This is not a valid gender');
+    return false;
   }
 
   setHobby(hobby) {
     if (typeof hobby === 'string') {
       this.hobby = hobby;
-    } else {
-      handleError('This is not a valid hobby');
+      return true;
     }
+    handleError('This is not a valid hobby');
+    return false;
   }
 
   setHtmlElements(htmlElements) {
@@ -123,15 +130,23 @@ class Person {
   addToDOM(row) {
     const table = document.querySelector('.table');
     const id = this.getId();
+
+    // <input type="number" name="" id="" min="1" max="120">
+    // <input type="text" name="" id="">
+    // <select name="" id=""><option value=""></option></select>
+
     const rowHTML = `
           <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="id">${id}</div>
-          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="firstName">${this.getFirstName()}</div>
-          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="lastName">${this.getLastName()}</div>
-          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="capsule">${this.getCapsule()}</div>
-          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="age">${this.getAge()}</div>
-          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="city">${this.getCity()}</div>
-          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="gender">${this.getGender()}</div>
-          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="hobby">${this.getHobby()}</div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="firstName"><input type="text" name="firstName" id="firstName${id}" value="${this.getFirstName()}" disabled></div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="lastName"><input type="text" name="lastName" id="lastName${id}" value="${this.getLastName()}" disabled></div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="capsule"> <input type="number" name="capsule" id="capsule${id}" min="1" max="120" value="${this.getCapsule()}" disabled></div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="age"> <input type="number" name="age" id="age${id}" min="1" max="120" value="${this.getAge()}" disabled></div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="city"><input type="text" name="city" id="city${id}" value="${this.getCity()}" disabled></div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="gender"><select name="gender" id="gender${id}" disabled>
+          <option value="Male" ${this.getGender() === 'Male' ? 'selected' : ''}>Male</option><option value="Female" ${
+      this.getGender() === 'Female' ? 'selected' : ''
+    }>Female</option></select></div>
+          <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="hobby"><input type="text" name="hobby" id="hobby${id}" value="${this.getHobby()}" disabled></div>
           <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="btns">
             <div class="btn btn__edit">Edit</div>
             <div class="btn btn__delete">Delete</div>
@@ -144,6 +159,8 @@ class Person {
     const btns = this.getHtmlElements().find((el) => el.dataset.type === 'btns');
     btns.querySelector('.btn__delete').addEventListener('click', deleteHtmlRow);
     btns.querySelector('.btn__edit').addEventListener('click', editHtmlRow);
+    btns.querySelector('.btn__save').addEventListener('click', saveHtmlRow);
+    btns.querySelector('.btn__cancel').addEventListener('click', cancelEditHtmlRow);
     document.querySelector('.loading-spinner').classList.add('none');
     table.parentElement.classList.remove('none');
   }
@@ -247,17 +264,74 @@ function getLocalStorageItem(key) {
 
 function deleteHtmlRow(e) {
   const { id } = e.target.parentElement.dataset;
-  const person = people.peopleList.find((personFromList) => id === `${personFromList.id}`);
-  const htmlElements = person.getHtmlElements();
+  const personIndex = people.peopleList.findIndex((personFromList) => id === `${personFromList.id}`);
+  const htmlElements = people.peopleList[personIndex].getHtmlElements();
   htmlElements.forEach((cell) => cell.remove());
-  updateLocalStorage('modified');
+  people.peopleList.splice(personIndex, 1);
+  updateLocalStorage('modified', people.peopleList);
 }
 
 function editHtmlRow(e) {
-  [...e.target.parentElement.children].forEach((btn) => btn.classList.toggle('none'));
+  [...e.target.parentElement.children].forEach((btn) => {
+    btn.classList.toggle('none');
+  });
+  document.querySelectorAll('.btn__delete').forEach((delBtn) => delBtn.removeEventListener('click', deleteHtmlRow));
+  document.querySelectorAll('.btn__edit').forEach((editBtn) => editBtn.removeEventListener('click', editHtmlRow));
   const { id } = e.target.parentElement.dataset;
   const person = people.peopleList.find((personFromList) => id === `${personFromList.id}`);
-  person.getHtmlElements().forEach((cell) => {});
+  person.getHtmlElements().forEach((cell) => {
+    const input = cell.firstElementChild;
+    if (input) {
+      input.disabled = false;
+    }
+  });
+}
+
+function saveHtmlRow(e) {
+  [...e.target.parentElement.children].forEach((btn) => {
+    btn.classList.toggle('none');
+    document.querySelectorAll('.btn__delete').forEach((delBtn) => delBtn.addEventListener('click', deleteHtmlRow));
+    document.querySelectorAll('.btn__edit').forEach((editBtn) => editBtn.addEventListener('click', editHtmlRow));
+  });
+  const { id } = e.target.parentElement.dataset;
+  const person = people.peopleList.find((personFromList) => id === `${personFromList.id}`);
+  const setters = {
+    firstName: person.setFirstName.bind(person),
+    lastName: person.setLastName.bind(person),
+    capsule: person.setCapsule.bind(person),
+    age: person.setAge.bind(person),
+    city: person.setCity.bind(person),
+    gender: person.setGender.bind(person),
+    hobby: person.setHobby.bind(person),
+  };
+  person.getHtmlElements().forEach((cell) => {
+    const input = cell.firstElementChild;
+    if (input && !input.classList.contains('btn')) {
+      if (!setters[cell.dataset.type](input.value)) {
+        input.value = person[cell.dataset.type];
+      }
+      input.disabled = true;
+    }
+  });
+  updateLocalStorage('modified', people.peopleList);
+}
+
+function cancelEditHtmlRow(e) {
+  [...e.target.parentElement.children].forEach((btn) => {
+    btn.classList.toggle('none');
+    document.querySelectorAll('.btn__delete').forEach((delBtn) => delBtn.addEventListener('click', deleteHtmlRow));
+    document.querySelectorAll('.btn__edit').forEach((editBtn) => editBtn.addEventListener('click', editHtmlRow));
+  });
+  const { id } = e.target.parentElement.dataset;
+  const person = people.peopleList.find((personFromList) => id === `${personFromList.id}`);
+
+  person.getHtmlElements().forEach((cell) => {
+    const input = cell.firstElementChild;
+    if (input && !input.classList.contains('btn')) {
+      input.value = person[cell.dataset.type];
+      input.disabled = true;
+    }
+  });
 }
 
 async function handleLoad() {
