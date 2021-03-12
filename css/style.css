@@ -12,6 +12,7 @@ html {
   font-weight: 300;
   font-size: 20px;
   background: #ffedc2;
+  color: #2d2a2e;
 }
 
 .none {
@@ -48,13 +49,17 @@ html {
 
 .table__cell {
   padding: 9px 4px 4px;
+  border-bottom: 1px #3d75bd solid;
+  align-self: stretch;
 }
 
 .table__header {
+  /* TODO add direction arrow (sorting) */
   position: sticky;
   top: 0;
   font-family: "Cuprum", sans-serif;
   background-color: #ffedc2;
+  align-self: stretch;
 }
 
 [data-type="btns"] {
@@ -75,12 +80,14 @@ html {
 
 .btn {
   padding: 3px 6px;
-  border: 1px solid black;
+  border: 1px solid #2d2a2e;
   border-radius: 10px;
+  cursor: url(../images/pencil.cur), pointer;
+  font-size: 0.9em;
 }
 
 .btn:hover {
-  cursor: url(../images/pencil.png) pointer;
+  font-weight: 440;
 }
 
 ::-webkit-scrollbar {

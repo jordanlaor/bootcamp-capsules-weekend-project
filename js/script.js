@@ -135,10 +135,15 @@ class Person {
           <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="btns">
             <div class="btn btn__edit">Edit</div>
             <div class="btn btn__delete">Delete</div>
-          </div>
-          <div class="line"></div>`;
+            <div class="btn btn__save none">Save</div>
+            <div class="btn btn__cancel none">Cancel</div>
+          </div>`;
+    // <div class="line"></div>`;
     table.insertAdjacentHTML('beforeend', rowHTML);
     this.setHtmlElements([...document.querySelectorAll(`[data-id="${id}"]`)]);
+    const btns = this.getHtmlElements().find((el) => el.dataset.type === 'btns');
+    btns.querySelector('.btn__delete').addEventListener('click', deleteHtmlRow);
+    btns.querySelector('.btn__edit').addEventListener('click', editHtmlRow);
     document.querySelector('.loading-spinner').classList.add('none');
     table.parentElement.classList.remove('none');
   }
@@ -209,6 +214,9 @@ class People {
   }
 }
 
+const people = new People();
+let sortBy = ['id', 1];
+
 function handleError(error) {
   // TODO have a better error handling
   console.log(error);
@@ -237,8 +245,22 @@ function getLocalStorageItem(key) {
   return peopleList;
 }
 
+function deleteHtmlRow(e) {
+  const { id } = e.target.parentElement.dataset;
+  const person = people.peopleList.find((personFromList) => id === `${personFromList.id}`);
+  const htmlElements = person.getHtmlElements();
+  htmlElements.forEach((cell) => cell.remove());
+  updateLocalStorage('modified');
+}
+
+function editHtmlRow(e) {
+  [...e.target.parentElement.children].forEach((btn) => btn.classList.toggle('none'));
+  const { id } = e.target.parentElement.dataset;
+  const person = people.peopleList.find((personFromList) => id === `${personFromList.id}`);
+  person.getHtmlElements().forEach((cell) => {});
+}
+
 async function handleLoad() {
-  const people = new People();
   people.peopleList =
     getLocalStorageItem('modified') || getLocalStorageItem('original') || (await people.fillPeopleList());
   people.addPeopleListToDOM();
@@ -246,5 +268,4 @@ async function handleLoad() {
   tableHeaders.forEach((header) => header.addEventListener('click', people.sortPeopleList.bind(people)));
 }
 
-let sortBy = ['id', 1];
 window.addEventListener('load', handleLoad);
