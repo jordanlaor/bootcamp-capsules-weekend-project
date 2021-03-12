@@ -9,7 +9,7 @@ class Person {
     this.city = '';
     this.gender = '';
     this.hobby = '';
-    this.htmlElement = '';
+    this.htmlElements = '';
   }
 
   // getters
@@ -45,8 +45,8 @@ class Person {
     return this.hobby;
   }
 
-  getHtmlElement() {
-    return this.htmlElement;
+  getHtmlElements() {
+    return this.htmlElements;
   }
 
   // setters
@@ -108,7 +108,7 @@ class Person {
     }
   }
 
-  setHtmlElement(htmlElements) {
+  setHtmlElements(htmlElements) {
     // TODO add data validation
     this.htmlElements = htmlElements;
   }
@@ -138,9 +138,18 @@ class Person {
           </div>
           <div class="line"></div>`;
     table.insertAdjacentHTML('beforeend', rowHTML);
-    this.setHtmlElement([...document.querySelectorAll(`[data-id="${id}"]`)]);
+    this.setHtmlElements([...document.querySelectorAll(`[data-id="${id}"]`)]);
     document.querySelector('.loading-spinner').classList.add('none');
     table.parentElement.classList.remove('none');
+  }
+
+  updateHtmlRow(row) {
+    const table = document.querySelector('.table');
+    const id = this.getId();
+    table.querySelectorAll(`[data-id="${id}"]`).forEach((cell) => {
+      cell.style.gridRow = row;
+      cell.dataset.row = row;
+    });
   }
 }
 
@@ -175,7 +184,29 @@ class People {
     this.peopleList.forEach((person, index) => person.addToDOM(index + 2));
   }
 
-  sortPeopleList() {}
+  updatePeopleHtmlRows() {
+    let counter = 0;
+    this.peopleList.forEach((person, index) => {
+      person.updateHtmlRow(index + 2 + counter);
+      counter += 1;
+    });
+  }
+
+  sortPeopleList(e) {
+    const { type } = e.target.dataset;
+    if (sortBy[0] === type) {
+      sortBy[1] *= -1;
+    } else {
+      sortBy = [type, 1];
+    }
+
+    this.peopleList.sort((person1, person2) => {
+      const typeEl1 = person1[type];
+      const typeEl2 = person2[type];
+      return `${typeEl1}`.localeCompare(`${typeEl2}`, undefined, { numeric: true }) * sortBy[1];
+    });
+    this.updatePeopleHtmlRows();
+  }
 }
 
 function handleError(error) {
@@ -211,6 +242,9 @@ async function handleLoad() {
   people.peopleList =
     getLocalStorageItem('modified') || getLocalStorageItem('original') || (await people.fillPeopleList());
   people.addPeopleListToDOM();
+  const tableHeaders = document.querySelectorAll('.table__header');
+  tableHeaders.forEach((header) => header.addEventListener('click', people.sortPeopleList.bind(people)));
 }
 
+let sortBy = ['id', 1];
 window.addEventListener('load', handleLoad);
