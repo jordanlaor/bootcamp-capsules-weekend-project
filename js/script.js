@@ -135,9 +135,12 @@ class Person {
           <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="btns">
             <div class="btn btn__edit">Edit</div>
             <div class="btn btn__delete">Delete</div>
-          </div>`;
+          </div>
+          <div class="line"></div>`;
     table.insertAdjacentHTML('beforeend', rowHTML);
     this.setHtmlElement([...document.querySelectorAll(`[data-id="${id}"]`)]);
+    document.querySelector('.loading-spinner').classList.add('none');
+    table.parentElement.classList.remove('none');
   }
 }
 
@@ -162,6 +165,7 @@ class People {
       );
       updateLocalStorage('original', this.peopleList);
       updateLocalStorage('modified', this.peopleList);
+      return this.peopleList;
     } catch (error) {
       handleError(error);
     }
@@ -195,9 +199,18 @@ function updateLocalStorage(key, object) {
 
 function getLocalStorageItem(key) {
   const peopleList = JSON.parse(localStorage.getItem(key));
+  if (!peopleList) return peopleList;
   for (const person of peopleList) {
     Object.setPrototypeOf(person, Person.prototype);
-    person.__proto__ = Person.prototype;
   }
   return peopleList;
 }
+
+async function handleLoad() {
+  const people = new People();
+  people.peopleList =
+    getLocalStorageItem('modified') || getLocalStorageItem('original') || (await people.fillPeopleList());
+  people.addPeopleListToDOM();
+}
+
+window.addEventListener('load', handleLoad);

@@ -11,6 +11,11 @@ html {
   font-family: "Truculenta", sans-serif;
   font-weight: 300;
   font-size: 20px;
+  background: #ffedc2;
+}
+
+.none {
+  display: none !important;
 }
 
 .page {
@@ -18,6 +23,10 @@ html {
   display: grid;
   grid-template-rows: max-content 1fr;
   padding: 30px;
+}
+
+.--span2 {
+  grid-column-end: span 2;
 }
 
 .header {
@@ -30,21 +39,22 @@ html {
 
 .table {
   display: grid;
-  grid-template-columns: repeat(9, max-content);
+  grid-template-columns: repeat(9, minmax(max-content, auto));
   grid-auto-rows: max-content;
-  justify-content: space-between;
+  justify-content: stretch;
   align-items: center;
   position: relative;
 }
 
 .table__cell {
-  padding: 5px;
+  padding: 9px 4px 4px;
 }
 
 .table__header {
   position: sticky;
   top: 0;
   font-family: "Cuprum", sans-serif;
+  background-color: #ffedc2;
 }
 
 [data-type="btns"] {
@@ -52,11 +62,25 @@ html {
   gap: 5px;
 }
 
+.line {
+  grid-column: 1 / 10;
+  height: 0.7px;
+  background: #3d75bd;
+}
+
+[data-type="btns"] {
+  border-left: 4px double #cf3f3f;
+  padding-left: 8px;
+}
+
 .btn {
   padding: 3px 6px;
   border: 1px solid black;
   border-radius: 10px;
-  cursor: pointer;
+}
+
+.btn:hover {
+  cursor: url(../images/pencil.png) pointer;
 }
 
 ::-webkit-scrollbar {
@@ -75,4 +99,69 @@ html {
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes spinner-inner {
+  0% {
+    transform: translate(1.61px, 1.61px);
+  }
+  33.33% {
+    transform: translate(82.11px, 1.61px);
+  }
+  66.66% {
+    transform: translate(33.81px, 82.11px);
+  }
+  100% {
+    transform: translate(1.61px, 1.61px);
+  }
+}
+
+.spinner-inner > div {
+  transform: scale(0.48);
+  transform-origin: 80.5px 80.5px;
+}
+
+.spinner-inner > div > div {
+  animation: spinner-inner 1.8s linear infinite;
+  position: absolute;
+}
+
+.spinner-inner > div > div div:nth-child(1) {
+  width: 57.96px;
+  height: 57.96px;
+  border-radius: 50%;
+  border: 9.66px solid #2d2a2e;
+  background: rgba(24, 154, 210, 0.05967741935483872);
+}
+
+.spinner-inner > div > div div:nth-child(2) {
+  width: 13.685px;
+  height: 41.055px;
+  transform: rotate(-45deg);
+  background: #2d2a2e;
+  border-radius: 0 0 6.44px 6.44px;
+  position: absolute;
+  top: 54.74px;
+  left: 68.425px;
+}
+.loading-spinner {
+  width: 161px;
+  height: 161px;
+  display: inline-block;
+  overflow: hidden;
+  background: none;
+  transform: scale(3);
+  justify-self: center;
+  align-self: center;
+}
+.spinner-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transform-origin: 0 0;
+}
+.spinner-inner div {
+  box-sizing: content-box;
 }
