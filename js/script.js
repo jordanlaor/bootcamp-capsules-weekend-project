@@ -378,7 +378,7 @@ async function getActivity(e) {
   const capsule = e.currentTarget.firstElementChild.value;
   if (/[0-9]/.test(capsule)) {
     const number = people.peopleList.filter((person) => String(person.getCapsule()) === capsule).length;
-    const data = await fetchDataAPI(`http://www.boredapi.com/api/activity?participants=${number}`);
+    const data = await fetchDataAPI(`https://www.boredapi.com/api/activity?participants=${number}`);
     document.querySelector('.suggested-activity').textContent = data.activity;
   } else {
     document.querySelector('.suggested-activity').textContent = 'sorry, something went wrong';
