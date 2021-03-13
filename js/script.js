@@ -131,10 +131,6 @@ class Person {
     const table = document.querySelector('.table');
     const id = this.getId();
 
-    // <input type="number" name="" id="" min="1" max="120">
-    // <input type="text" name="" id="">
-    // <select name="" id=""><option value=""></option></select>
-
     const rowHTML = `
           <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="id">${id}</div>
           <div class="table__cell table__row" data-row="${row}" data-id="${id}" data-type="firstName"><input type="text" name="firstName" id="firstName${id}" value="${this.getFirstName()}" disabled></div>
@@ -153,9 +149,11 @@ class Person {
             <div class="btn btn__save none">Save</div>
             <div class="btn btn__cancel none">Cancel</div>
           </div>`;
-    // <div class="line"></div>`;
     table.insertAdjacentHTML('beforeend', rowHTML);
     this.setHtmlElements([...document.querySelectorAll(`[data-id="${id}"]`)]);
+    this.getHtmlElements()
+      .find((element) => element.dataset.type === 'capsule')
+      .addEventListener('click', getActivity);
     const btns = this.getHtmlElements().find((el) => el.dataset.type === 'btns');
     btns.querySelector('.btn__delete').addEventListener('click', deleteHtmlRow);
     btns.querySelector('.btn__edit').addEventListener('click', editHtmlRow);
@@ -176,21 +174,20 @@ class Person {
 }
 
 class People {
-  static url = 'https://apple-seeds.herokuapp.com/api/users/';
-
   constructor() {
     this.peopleList = [];
+    this.BASE_URL = 'https://apple-seeds.herokuapp.com/api/users/';
   }
 
   async fillPeopleList() {
     try {
-      const data = await fetchDataAPI(People.url);
+      const data = await fetchDataAPI(this.BASE_URL);
       for (const item of data) {
         this.peopleList.push(new Person(item.id, item.firstName, item.lastName, item.capsule));
       }
       await Promise.allSettled(
         this.peopleList.map(async (person) => {
-          const personData = await fetchDataAPI(`${People.url}${person.id}`);
+          const personData = await fetchDataAPI(`${this.BASE_URL}${person.id}`);
           person.setAdditionalInfoAPI(personData.age, personData.city, personData.gender, personData.hobby);
         })
       );
@@ -233,6 +230,8 @@ class People {
 
 const people = new People();
 let sortBy = ['id', 1];
+const searchInput = document.querySelector('.search-input');
+const searchCategories = document.querySelector('#search-categories');
 
 function handleError(error) {
   // TODO have a better error handling
@@ -272,6 +271,12 @@ function deleteHtmlRow(e) {
 }
 
 function editHtmlRow(e) {
+  people.peopleList.forEach((personFromList) =>
+    personFromList
+      .getHtmlElements()
+      .find((element) => element.dataset.type === 'capsule')
+      .removeEventListener('click', getActivity)
+  );
   [...e.target.parentElement.children].forEach((btn) => {
     btn.classList.toggle('none');
   });
@@ -288,6 +293,12 @@ function editHtmlRow(e) {
 }
 
 function saveHtmlRow(e) {
+  people.peopleList.forEach((personFromList) =>
+    personFromList
+      .getHtmlElements()
+      .find((element) => element.dataset.type === 'capsule')
+      .addEventListener('click', getActivity)
+  );
   [...e.target.parentElement.children].forEach((btn) => {
     btn.classList.toggle('none');
     document.querySelectorAll('.btn__delete').forEach((delBtn) => delBtn.addEventListener('click', deleteHtmlRow));
@@ -304,6 +315,7 @@ function saveHtmlRow(e) {
     gender: person.setGender.bind(person),
     hobby: person.setHobby.bind(person),
   };
+
   person.getHtmlElements().forEach((cell) => {
     const input = cell.firstElementChild;
     if (input && !input.classList.contains('btn')) {
@@ -317,6 +329,12 @@ function saveHtmlRow(e) {
 }
 
 function cancelEditHtmlRow(e) {
+  people.peopleList.forEach((personFromList) =>
+    personFromList
+      .getHtmlElements()
+      .find((element) => element.dataset.type === 'capsule')
+      .addEventListener('click', getActivity)
+  );
   [...e.target.parentElement.children].forEach((btn) => {
     btn.classList.toggle('none');
     document.querySelectorAll('.btn__delete').forEach((delBtn) => delBtn.addEventListener('click', deleteHtmlRow));
@@ -334,12 +352,50 @@ function cancelEditHtmlRow(e) {
   });
 }
 
+function search() {
+  people.peopleList.forEach((person) => {
+    person.getHtmlElements().forEach((element) => element.classList.add('none'));
+  });
+  [...searchCategories.selectedOptions].forEach((selection) => {
+    people.peopleList.forEach((person) => {
+      if (String(person[selection.value]).toLowerCase().includes(searchInput.value.toLowerCase())) {
+        person.getHtmlElements().forEach((element) => element.classList.remove('none'));
+      }
+    });
+  });
+}
+
+function resetList() {
+  people.peopleList.forEach((person) => {
+    const htmlElements = person.getHtmlElements();
+    htmlElements.forEach((cell) => cell.remove());
+  });
+  people.peopleList = getLocalStorageItem('original');
+  people.addPeopleListToDOM();
+  updateLocalStorage('modified', people.peopleList);
+}
+
+async function getActivity(e) {
+  const capsule = e.currentTarget.firstElementChild.value;
+  if (/[0-9]/.test(capsule)) {
+    const number = people.peopleList.filter((person) => String(person.getCapsule()) === capsule).length;
+    const data = await fetchDataAPI(`http://www.boredapi.com/api/activity?participants=${number}`);
+    document.querySelector('.suggested-activity').textContent = data.activity;
+  } else {
+    document.querySelector('.suggested-activity').textContent = 'sorry, something went wrong';
+  }
+}
+
 async function handleLoad() {
   people.peopleList =
     getLocalStorageItem('modified') || getLocalStorageItem('original') || (await people.fillPeopleList());
   people.addPeopleListToDOM();
   const tableHeaders = document.querySelectorAll('.table__header');
   tableHeaders.forEach((header) => header.addEventListener('click', people.sortPeopleList.bind(people)));
+
+  searchInput.addEventListener('input', search);
+  searchCategories.addEventListener('change', search);
+  document.querySelector('.btn__reset').addEventListener('click', resetList);
 }
 
 window.addEventListener('load', handleLoad);

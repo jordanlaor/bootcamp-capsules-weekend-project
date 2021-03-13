@@ -18,6 +18,22 @@
     <main class="page">
       <header class="header">
         <h1>Pini HaFini's Capsules</h1>
+        <nav>
+          <div class="search-wrapper">
+            <input type="text" name="search-input" id="search-input" class="search-input" />
+            <select name="search-categories" id="search-categories" multiple size="3">
+              <option value="firstName">First Name</option>
+              <option value="lastName">Last Name</option>
+              <option value="capsule">Capsule</option>
+              <option value="age">Age</option>
+              <option value="city">City</option>
+              <option value="gender">Gender</option>
+              <option value="hobby">Hobby</option>
+            </select>
+          </div>
+          <div class="suggested-activity">Click on someone's capsule number for suggestions</div>
+          <div class="btn btn__reset">Reset List</div>
+        </nav>
       </header>
       <div class="loading-spinner">
         <div class="spinner-inner">
@@ -29,6 +45,7 @@
           </div>
         </div>
       </div>
+      <div class="portrait">You should turn your device for a better experience</div>
       <div class="table__wrapper none">
         <section class="table">
           <div class="table__cell table__header" data-type="id" data-row="1">Id</div>

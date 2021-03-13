@@ -34,6 +34,30 @@ html {
   font-family: "Cuprum", sans-serif;
 }
 
+nav {
+  display: grid;
+  align-items: center;
+  justify-content: space-between;
+  grid-template-columns: max-content 1fr max-content;
+}
+
+.suggested-activity {
+  text-align: center;
+  font-size: 1.2em;
+  color: #282355;
+  padding: 0px 5px;
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.portrait {
+  display: none;
+}
+
 .table__wrapper {
   overflow-y: scroll;
 }
@@ -117,9 +141,13 @@ input {
   transition: 0.2s;
 }
 
+.btn__reset {
+  font-size: 1.2em;
+}
+
 .btn:hover {
   font-weight: 440;
-  background: #82e7eb60;
+  background: #9f90f360;
 }
 
 .btn__delete:hover,
@@ -128,11 +156,12 @@ input {
 }
 .btn__edit:hover,
 .btn__save:hover {
-  background: #75e7c560;
+  background: #75e7a860;
 }
 
 ::-webkit-scrollbar {
-  height: 7px;
+  height: 5px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
