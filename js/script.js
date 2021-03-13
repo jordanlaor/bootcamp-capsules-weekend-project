@@ -116,7 +116,6 @@ class Person {
   }
 
   setHtmlElements(htmlElements) {
-    // TODO add data validation
     this.htmlElements = htmlElements;
   }
 
@@ -234,8 +233,8 @@ const searchInput = document.querySelector('.search-input');
 const searchCategories = document.querySelector('#search-categories');
 
 function handleError(error) {
-  // TODO have a better error handling
-  console.log(error);
+  document.querySelector('.suggested-activity').textContent = error;
+  console.error(error);
 }
 
 async function fetchDataAPI(url) {

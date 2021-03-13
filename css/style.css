@@ -108,7 +108,6 @@ input {
 }
 
 .table__header {
-  /* TODO add direction arrow (sorting) */
   position: sticky;
   top: 0;
   font-family: "Cuprum", sans-serif;
